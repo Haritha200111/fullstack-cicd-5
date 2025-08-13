@@ -1,0 +1,6 @@
+-- Create users table
+CREATE TABLE IF NOT EXISTS "User" (
+  id SERIAL PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT now()
+);

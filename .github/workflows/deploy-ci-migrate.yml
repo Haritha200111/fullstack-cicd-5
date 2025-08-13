@@ -1,0 +1,73 @@
+name: CI/CD with Prisma Migrate (CI) -> Docker Hub -> EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  migrate_and_deploy:
+    runs-on: ubuntu-latest
+    env:
+      BACKEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/fullstack-backend:${{ github.sha }}
+      FRONTEND_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/fullstack-frontend:${{ github.sha }}
+      DATABASE_URL: postgresql://${{ secrets.RDS_USER }}:${{ secrets.RDS_PASSWORD }}@${{ secrets.RDS_HOST }}:5432/${{ secrets.RDS_DB }}?sslmode=disable
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node (for Prisma)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Prisma CLI (backend)
+        working-directory: backend
+        run: |
+          npm ci
+
+      - name: Run Prisma migrations (CI) ✅
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          npx prisma migrate deploy --schema=prisma/schema.prisma
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend image
+        run: |
+          docker build -f backend/Dockerfile -t $BACKEND_IMAGE backend
+          docker push $BACKEND_IMAGE
+
+      - name: Build and push frontend image
+        run: |
+          docker build -f frontend/Dockerfile -t $FRONTEND_IMAGE frontend
+          docker push $FRONTEND_IMAGE
+
+      - name: Deploy to EC2 (pull & run)
+        uses: appleboy/ssh-action@v1.6.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            BACKEND_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/fullstack-backend:${{ github.sha }}
+            FRONTEND_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/fullstack-frontend:${{ github.sha }}
+
+            docker pull $BACKEND_IMAGE
+            docker pull $FRONTEND_IMAGE
+
+            docker stop fullstack-backend || true
+            docker rm fullstack-backend || true
+            docker stop fullstack-frontend || true
+            docker rm fullstack-frontend || true
+
+            docker run -d --name fullstack-backend -p 8080:8080               -e DATABASE_URL="${{ secrets.DATABASE_URL }}"               $BACKEND_IMAGE
+
+            docker run -d --name fullstack-frontend -p 80:80               $FRONTEND_IMAGE
