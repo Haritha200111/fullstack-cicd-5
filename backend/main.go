@@ -18,7 +18,6 @@ type User struct {
 }
 
 func getDB() (*sql.DB, error) {
-	// Prefer DATABASE_URL env var (set by docker-compose or CI/EC2)
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		// default for local docker-compose (service name "db")
