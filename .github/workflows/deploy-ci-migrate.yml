@@ -23,8 +23,7 @@ jobs:
 
       - name: Install Prisma CLI (backend)
         working-directory: backend
-        run: |
-          npm ci
+        run: npm install
 
       - name: Run Prisma migrations (CI) ✅
         working-directory: backend
