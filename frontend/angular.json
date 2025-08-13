@@ -17,14 +17,14 @@
             "tsConfig": "tsconfig.json"
           },
           "configurations": {
-          "production": {
-            "optimization": true,
-            "outputHashing": "all",
-            "sourceMap": false
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false
+            }
           }
         }
       }
     }
   }
-}
 }
