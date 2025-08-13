@@ -50,7 +50,7 @@ jobs:
           docker push $FRONTEND_IMAGE
 
       - name: Deploy to EC2 (pull & run)
-        uses: appleboy/ssh-action@v1.6.0
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
