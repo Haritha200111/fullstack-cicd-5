@@ -25,7 +25,7 @@ jobs:
         working-directory: backend
         run: npm install
 
-      - name: Run Prisma migrations (CI) ✅
+      - name: Run Prisma migrations (CI)
         working-directory: backend
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
