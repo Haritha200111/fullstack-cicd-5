@@ -67,6 +67,6 @@ jobs:
             docker stop fullstack-frontend || true
             docker rm fullstack-frontend || true
 
-            docker run -d --name fullstack-backend -p 8080:8080               -e DATABASE_URL="${{ secrets.DATABASE_URL }}"               $BACKEND_IMAGE
+            docker run -d --name fullstack-backend -p 5055:5055               -e DATABASE_URL="${{ secrets.DATABASE_URL }}"               $BACKEND_IMAGE
 
             docker run -d --name fullstack-frontend -p 80:80               $FRONTEND_IMAGE
