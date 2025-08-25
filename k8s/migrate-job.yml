@@ -9,6 +9,7 @@ spec:
       containers:
         - name: migrate
           image: fullstack-backend:latest
+          imagePullPolicy: IfNotPresent
           command: ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
           env:
             - name: DATABASE_URL
