@@ -9,6 +9,7 @@ jobs:
     env:
       BACKEND_IMAGE: fullstack-backend:latest
       FRONTEND_IMAGE: fullstack-frontend:latest
+      MIGRATION_IMAGE: prisma-migrate:latest
       DATABASE_URL: postgresql://postgres:Monday%4001@postgres-service:5432/cicd?sslmode=disable
 
     steps:
@@ -32,27 +33,33 @@ jobs:
       - name: Build frontend Docker image
         run: docker build -t ${{ env.FRONTEND_IMAGE }} ./frontend
 
-      # Load images into kind (since using local k8s)
+      # Migration image build
+      - name: Build Prisma migration Docker image
+        run: docker build -t ${{ env.MIGRATION_IMAGE }} -f Dockerfile.prisma .
+
+      # Load images into kind (local K8s)
       - name: Load images into kind
         run: |
           kind load docker-image ${{ env.BACKEND_IMAGE }} --name haritha-dev-cluster
           kind load docker-image ${{ env.FRONTEND_IMAGE }} --name haritha-dev-cluster
+          kind load docker-image ${{ env.MIGRATION_IMAGE }} --name haritha-dev-cluster
 
-      # Deploy Postgres first
+      # Deploy Postgres
       - name: Apply Postgres manifests
         run: kubectl apply -f k8s/postgres-deployment.yml
 
       - name: Wait for Postgres
         run: kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
 
-      # Run migrations as a K8s Job
+      # Run migrations using dedicated image
       - name: Apply Prisma migration job
-        run: kubectl apply -f k8s/migrate-job.yml --v=6
+        run: |
+          sed "s|image:.*|image: ${{ env.MIGRATION_IMAGE }}|" k8s/migrate-job.yml | kubectl apply -f -
 
       - name: Wait for migration job
         run: kubectl wait --for=condition=complete job/prisma-migrate-job --timeout=300s
 
-      # Cleanup migration job explicitly
+      # Cleanup migration job
       - name: Cleanup migration job
         if: always()
         run: kubectl delete job prisma-migrate-job --ignore-not-found=true
