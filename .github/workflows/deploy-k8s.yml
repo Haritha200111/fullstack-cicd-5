@@ -35,7 +35,7 @@ jobs:
 
       # Migration image build
       - name: Build Prisma migration Docker image
-        run: docker build -t prisma-migrate:latest -f ./backend/Dockerfile.prisma ./backend
+        run: docker build -t prisma-migrate:latest -f ./backend/Dockerfile.prisma 
 
 
       # Load images into kind (local K8s)
@@ -53,9 +53,10 @@ jobs:
         run: kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
 
       # Run migrations using dedicated image
-      - name: Apply Prisma migration job
+      - name: Apply Prisma migration job with updated image
         run: |
-          sed "s|image:.*|image: ${{ env.MIGRATION_IMAGE }}|" k8s/migrate-job.yml | kubectl apply -f -
+          Get-Content k8s/migrate-job.yml | ForEach-Object { $_ -replace 'image:.*', 'image: prisma-migrate:latest' } | kubectl apply -f -
+        shell: pwsh
 
       - name: Wait for migration job
         run: kubectl wait --for=condition=complete job/prisma-migrate-job --timeout=300s
