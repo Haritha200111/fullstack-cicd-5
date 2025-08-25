@@ -1,8 +1,9 @@
 name: CI/CD with Prisma Migrate (CI) -> Docker Hub -> EC2
 
 on:
-  push:
-    branches: [ main ]
+#   push:
+#     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   migrate_and_deploy:
