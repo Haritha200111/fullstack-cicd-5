@@ -9,7 +9,7 @@ jobs:
     env:
       BACKEND_IMAGE: fullstack-backend:latest
       FRONTEND_IMAGE: fullstack-frontend:latest
-      DATABASE_URL: postgresql://postgres:postgres@postgres-service:5432/mydb?sslmode=disable
+      DATABASE_URL: postgresql://postgres:Monday@01@postgres-service:5432/cicd?sslmode=disable
 
     steps:
       - name: Checkout repository
