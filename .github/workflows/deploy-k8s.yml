@@ -40,14 +40,14 @@ jobs:
 
       # Deploy Postgres first
       - name: Apply Postgres manifests
-        run: kubectl apply -f ./k8s/postgres-deployment.yaml
+        run: kubectl apply -f k8s/postgres-deployment.yaml
 
       - name: Wait for Postgres
         run: kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
 
       # Run migrations as a K8s Job
       - name: Apply Prisma migration job
-        run: kubectl apply -f ./k8s/migrate-job.yaml
+        run: kubectl apply -f k8s/migrate-job.yaml
 
       - name: Wait for migration job
         run: kubectl wait --for=condition=complete job/prisma-migrate-job --timeout=120s
@@ -59,4 +59,4 @@ jobs:
 
       # Deploy backend + frontend
       - name: Apply app manifests
-        run: kubectl apply -f ./k8s/
+        run: kubectl apply -f k8s/
