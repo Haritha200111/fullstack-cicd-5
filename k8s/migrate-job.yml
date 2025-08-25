@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prisma-migrate-job
+spec:
+  ttlSecondsAfterFinished: 60   # auto delete after 1 minute
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: fullstack-backend:latest
+          command: ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DATABASE_URL
+      restartPolicy: Never
