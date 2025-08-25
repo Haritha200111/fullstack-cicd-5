@@ -1,10 +1,20 @@
 FROM node:18-alpine
 
+# Install OpenSSL
+RUN apk add --no-cache openssl
+
+# Set working directory
 WORKDIR /app
 
+# Copy Prisma files
 COPY prisma/ prisma/
 COPY package.json package-lock.json ./
 
+# Install dependencies
 RUN npm install
 
+# Optional: install Prisma CLI globally
+RUN npm install -g prisma
+
+# Default command
 CMD ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
