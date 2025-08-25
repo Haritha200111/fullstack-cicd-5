@@ -29,9 +29,9 @@ spec:
         - name: POSTGRES_USER
           value: postgres
         - name: POSTGRES_PASSWORD
-          value: postgres
+          value: Monday@01
         - name: POSTGRES_DB
-          value: mydb
+          value: cicd
         ports:
         - containerPort: 5432
         volumeMounts:
