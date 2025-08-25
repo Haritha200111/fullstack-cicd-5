@@ -35,7 +35,7 @@ jobs:
 
       # Migration image build
       - name: Build Prisma migration Docker image
-        run: docker build -t prisma-migrate:latest -f ./backend/Dockerfile.prisma 
+        run: docker build -t prisma-migrate:latest -f ./backend/Dockerfile.prisma ./backend
 
 
       # Load images into kind (local K8s)
