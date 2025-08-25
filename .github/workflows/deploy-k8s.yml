@@ -54,9 +54,9 @@ jobs:
 
       # Run migrations using dedicated image
       - name: Apply Prisma migration job with updated image
+        shell: powershell
         run: |
           Get-Content k8s/migrate-job.yml | ForEach-Object { $_ -replace 'image:.*', 'image: prisma-migrate:latest' } | kubectl apply -f -
-        shell: pwsh
 
       - name: Wait for migration job
         run: kubectl wait --for=condition=complete job/prisma-migrate-job --timeout=300s
