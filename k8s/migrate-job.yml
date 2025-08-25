@@ -12,5 +12,5 @@ spec:
           command: ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
           env:
             - name: DATABASE_URL
-              value: postgresql://postgres:Monday@01@postgres-service:5432/cicd?sslmode=disable
+              value: postgresql://postgres:Monday%4001@postgres-service:5432/cicd?sslmode=disable
       restartPolicy: Never

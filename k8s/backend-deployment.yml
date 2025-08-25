@@ -19,7 +19,7 @@ spec:
         - containerPort: 5055
         env:
         - name: DATABASE_URL
-          value: postgresql://postgres:Monday@01@postgres-service:5432/cicd?sslmode=disable
+          value: postgresql://postgres:Monday%4001@postgres-service:5432/cicd?sslmode=disable
 ---
 apiVersion: v1
 kind: Service

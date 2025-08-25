@@ -29,7 +29,7 @@ spec:
         - name: POSTGRES_USER
           value: postgres
         - name: POSTGRES_PASSWORD
-          value: Monday@01
+          value: Monday%4001
         - name: POSTGRES_DB
           value: cicd
         ports:
