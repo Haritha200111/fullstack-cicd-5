@@ -35,8 +35,8 @@ jobs:
       # Load images into kind (since using local k8s)
       - name: Load images into kind
         run: |
-          kind load docker-image ${{ env.BACKEND_IMAGE }}
-          kind load docker-image ${{ env.FRONTEND_IMAGE }}
+          kind load docker-image ${{ env.BACKEND_IMAGE }} --name haritha-dev-cluster
+          kind load docker-image ${{ env.FRONTEND_IMAGE }} --name haritha-dev-cluster
 
       # Deploy Postgres first
       - name: Apply Postgres manifests
