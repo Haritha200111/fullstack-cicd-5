@@ -26,11 +26,11 @@ jobs:
         run: npm install
 
       - name: Build backend Docker image
-        run: docker build -t $BACKEND_IMAGE backend
+        run: docker build -t $BACKEND_IMAGE ./backend
 
       # Frontend build
       - name: Build frontend Docker image
-        run: docker build -t $FRONTEND_IMAGE frontend
+        run: docker build -t $FRONTEND_IMAGE ./frontend
 
       # Load images into kind (since using local k8s)
       - name: Load images into kind

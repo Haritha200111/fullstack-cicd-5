@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: prisma-migrate-job
 spec:
-  ttlSecondsAfterFinished: 60   # auto delete after 1 minute
+  ttlSecondsAfterFinished: 190   # auto delete after 1 minute
   template:
     spec:
       containers:
