@@ -9,8 +9,7 @@ jobs:
     env:
       BACKEND_IMAGE: fullstack-backend:latest
       FRONTEND_IMAGE: fullstack-frontend:latest
-      MIGRATION_IMAGE: prisma-migrate:latest
-      DATABASE_URL: postgresql://postgres:Monday%4001@postgres-service:5432/cicd?sslmode=disable
+      DATABASE_URL: postgresql://postgres:postgres@postgres-service:5432/mydb?sslmode=disable
 
     steps:
       - name: Checkout repository
@@ -27,41 +26,33 @@ jobs:
         run: npm install
 
       - name: Build backend Docker image
-        run: docker build -t ${{ env.BACKEND_IMAGE }} ./backend
+        run: docker build -t $BACKEND_IMAGE backend
 
       # Frontend build
       - name: Build frontend Docker image
-        run: docker build -t ${{ env.FRONTEND_IMAGE }} ./frontend
+        run: docker build -t $FRONTEND_IMAGE frontend
 
-      # Migration image build
-      - name: Build Prisma migration Docker image
-        run: docker build -t prisma-migrate:latest -f ./backend/Dockerfile.prisma ./backend
-
-
-      # Load images into kind (local K8s)
+      # Load images into kind (since using local k8s)
       - name: Load images into kind
         run: |
-          kind load docker-image ${{ env.BACKEND_IMAGE }} --name haritha-dev-cluster
-          kind load docker-image ${{ env.FRONTEND_IMAGE }} --name haritha-dev-cluster
-          kind load docker-image ${{ env.MIGRATION_IMAGE }} --name haritha-dev-cluster
+          kind load docker-image $BACKEND_IMAGE
+          kind load docker-image $FRONTEND_IMAGE
 
-      # Deploy Postgres
+      # Deploy Postgres first
       - name: Apply Postgres manifests
-        run: kubectl apply -f k8s/postgres-deployment.yml
+        run: kubectl apply -f k8s/postgres.yaml
 
       - name: Wait for Postgres
         run: kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
 
-      # Run migrations using dedicated image
-      - name: Apply Prisma migration job with updated image
-        shell: powershell
-        run: |
-          Get-Content k8s/migrate-job.yml | ForEach-Object { $_ -replace 'image:.*', 'image: prisma-migrate:latest' } | kubectl apply -f -
+      # Run migrations as a K8s Job
+      - name: Apply Prisma migration job
+        run: kubectl apply -f k8s/migrate-job.yaml
 
       - name: Wait for migration job
-        run: kubectl wait --for=condition=complete job/prisma-migrate-job --timeout=300s
+        run: kubectl wait --for=condition=complete job/prisma-migrate-job --timeout=120s
 
-      # Cleanup migration job
+      # Cleanup migration job explicitly
       - name: Cleanup migration job
         if: always()
         run: kubectl delete job prisma-migrate-job --ignore-not-found=true
